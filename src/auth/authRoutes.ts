@@ -1,9 +1,15 @@
 import { authController } from "./authController";
 import { NextFunction, Request, Response, Router } from "express";
+import { validationMiddleware } from "../middleware";
+import { RegisterSchema } from "./schema";
 
 export const authRoute = Router();
 
-authRoute.post("/register", authController.register);
+authRoute.post(
+  "/register",
+  validationMiddleware(RegisterSchema),
+  authController.register
+);
 
 authRoute.post(
   "/login",

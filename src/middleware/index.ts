@@ -1,2 +1,3 @@
-export * from "./errorMiddleWare";
+export * from "./errorMiddleware";
 export * from "./healthMiddleware";
+export * from "./validationMiddleware";
