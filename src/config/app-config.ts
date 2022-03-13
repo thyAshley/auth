@@ -1,7 +1,7 @@
 export const appConfig = {
   db: {
     username: process.env.DB_USERNAME,
-    password: process.env.PASSWORD,
+    password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
     host: process.env.DB_HOST,
     name: process.env.DB_NAME,
