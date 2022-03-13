@@ -1,10 +1,9 @@
 import "dotenv/config";
 import express from "express";
-import { appConfig } from "./config/app-config";
-import { errorHandlingMiddleware } from "./middleware/errorHandlerMiddleWare";
 import createError from "http-errors";
+import { appConfig } from "./config/app-config";
+import { errorHandlingMiddleware, healthMiddleware } from "./middleware";
 import { authRoute } from "./routes/authRoutes";
-import { healthMiddleware } from "./middleware/healthMiddleware";
 
 class App {
   public app: express.Application;
