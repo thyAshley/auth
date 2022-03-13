@@ -1,3 +1,4 @@
+import { PostRegisterRequestBody, PostRegisterResponseBody } from "./types";
 import { NextFunction, Request, Response } from "express";
 import { userService } from "./service/UserService";
 
@@ -6,12 +7,16 @@ class AuthController {
 
   public async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const payload = req.body;
+      const payload = req.body as PostRegisterRequestBody;
+      const user = await userService.findUserByEmail(payload.email);
+      if (user) {
+        return res.json({ message: "The provided email is already in used." });
+      }
       await userService.createNewUser(payload.email, payload.password);
-      res.json({ message: "register" });
+      return res.json({ message: "User has been created in database" });
     } catch (error) {
       console.log(error);
-      res.json({ message: error });
+      return res.json({ message: error });
     }
   }
 }

@@ -14,6 +14,7 @@ const ormConfig: ConnectionOptions = {
   cli: {
     migrationsDir: "src/db/migration/records",
   },
+  migrationsRun: true,
 };
 
 export default ormConfig;
