@@ -1,8 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { ToLowerCaseTransformer } from "../transformer";
 
 @Entity()
-class User {
+class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -17,6 +17,7 @@ class User {
   @Column({
     type: "varchar",
     nullable: false,
+    select: false,
   })
   public password: string;
 }

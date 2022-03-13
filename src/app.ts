@@ -6,16 +6,22 @@ import "reflect-metadata";
 import { appConfig } from "./config/app-config";
 import { dbConnection } from "./db/dbConnection";
 import { errorHandlingMiddleware, healthMiddleware } from "./middleware";
-import { authRoute } from "./routes/authRoutes";
+import { authRoute } from "./auth/authRoutes";
 
 class App {
   public app: express.Application;
   constructor() {
     this.app = express();
     this.connectToDb();
+    this.initializeMiddlewares();
     this.initializeLogger();
     this.initializeRoutes();
     this.initializeErrorHandler();
+  }
+
+  private initializeMiddlewares() {
+    console.log("initialising middleware");
+    this.app.use(express.json());
   }
 
   private initializeLogger() {
@@ -39,14 +45,20 @@ class App {
   }
 
   private async connectToDb() {
-    console.log("connecting to db...");
     await dbConnection();
   }
 
   public listen() {
-    this.app.listen(appConfig.app.port, () => {
-      console.log(`Server started on port ${appConfig.app.port}`);
-    });
+    this.connectToDb()
+      .then(() => {
+        console.log("connected to database...");
+        this.app.listen(appConfig.app.port, () => {
+          console.log(`Server started on port ${appConfig.app.port}`);
+        });
+      })
+      .catch((error) => {
+        console.log("failed to connect to db", error);
+      });
   }
 }
 

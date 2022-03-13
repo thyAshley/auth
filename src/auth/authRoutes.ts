@@ -1,13 +1,9 @@
-import { NextFunction, Router, Request, Response } from "express";
+import { authController } from "./authController";
+import { NextFunction, Request, Response, Router } from "express";
 
 export const authRoute = Router();
 
-authRoute.post(
-  "/register",
-  async (req: Request, res: Response, next: NextFunction) => {
-    res.json({ message: "register" });
-  }
-);
+authRoute.post("/register", authController.register);
 
 authRoute.post(
   "/login",
