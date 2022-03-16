@@ -25,12 +25,11 @@ class User extends BaseEntity {
   @Column({
     type: "varchar",
     nullable: false,
-    select: false,
   })
   public password: string;
 
   @BeforeInsert()
-  encryptPassword() {
+  private encryptPassword() {
     const salt = bcrypt.genSaltSync(10);
     this.password = bcrypt.hashSync(this.password, salt);
   }

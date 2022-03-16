@@ -11,12 +11,7 @@ authRoute.post(
   authController.register
 );
 
-authRoute.post(
-  "/login",
-  async (req: Request, res: Response, next: NextFunction) => {
-    res.json({ message: "login" });
-  }
-);
+authRoute.post("/login", authController.login);
 
 authRoute.post(
   "/refresh-token",
