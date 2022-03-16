@@ -2,6 +2,7 @@ import createError from "http-errors";
 import { PostRegisterRequestBody, PostRegisterResponseBody } from "./types";
 import { NextFunction, Request, Response } from "express";
 import { userService } from "./service/UserService";
+import jwt from "jsonwebtoken";
 
 class AuthController {
   constructor() {}
@@ -15,6 +16,7 @@ class AuthController {
           new createError.BadRequest("The provided email is already in used.")
         );
       }
+
       await userService.createNewUser(payload.email, payload.password);
       return res.json({ message: "User has been created in database" });
     } catch (error) {
