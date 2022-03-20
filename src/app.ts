@@ -12,6 +12,7 @@ import {
 } from "./middleware";
 import { authRoute } from "./auth/authRoutes";
 import "./redis/client";
+import cookieParser from "cookie-parser";
 
 class App {
   public app: express.Application;
@@ -39,6 +40,7 @@ class App {
     });
 
     this.app.use(morgan(":method :url :body"));
+    this.app.use(cookieParser(appConfig.app.cookieSecret));
   }
 
   private initializeErrorHandler() {
@@ -54,9 +56,17 @@ class App {
     console.log("initialising routes");
     this.app.use("/auth", authRoute);
     this.app.get("/health", healthMiddleware);
-    this.app.get("/", protectMiddleware, (req, res, next) => {
+    this.app.get("/", (req, res, next) => {
       try {
-        return res.json("Welcome to the protected route");
+        res
+          .cookie("test", "thiseeet", {
+            path: "/",
+            domain: "localhost",
+            httpOnly: true,
+            signed: true,
+            secure: process.env.NODE_ENV === "production",
+          })
+          .json("Welcome to the protected route");
       } catch (error) {
         return res.json(error);
       }

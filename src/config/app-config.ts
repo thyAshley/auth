@@ -14,5 +14,6 @@ export const appConfig = {
     port: process.env.PORT || 3000,
     jwtSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
     jwtRefreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
+    cookieSecret: process.env.COOKIE_SIGNATURE,
   },
 };

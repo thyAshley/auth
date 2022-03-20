@@ -42,7 +42,6 @@ class AuthController {
         user.email,
         userId
       );
-
       return res.json({ token: newToken, refreshToken: newRefreshToken });
     } catch (error) {
       console.log(error);

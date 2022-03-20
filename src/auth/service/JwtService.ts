@@ -164,4 +164,10 @@ class JwtService {
   };
 }
 
+class jwtServiceV2 {
+  private refreshTokenExpiry = 5;
+  private accessTokenExpiry = 5;
+  constructor() {}
+}
+
 export const jwtService = new JwtService();
