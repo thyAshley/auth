@@ -1,17 +1,12 @@
-import { json, NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import createError from "http-errors";
 import { jwtService } from "./service/JwtService";
 import { userService } from "./service/UserService";
-import { PostRegisterRequestBody } from "./types";
-
-interface PostLoginRequestBody {
-  email: string;
-  password: string;
-}
-
-interface PostRefreshTokenBody {
-  refreshToken: string;
-}
+import {
+  PostLoginRequestBody,
+  PostRefreshTokenBody,
+  PostRegisterRequestBody,
+} from "./type";
 
 class AuthController {
   constructor() {}

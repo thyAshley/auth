@@ -11,6 +11,7 @@ import {
   protectMiddleware,
 } from "./middleware";
 import { authRoute } from "./auth/authRoutes";
+import { getRedisAsync, setRedisAsync } from "./redis/client";
 
 class App {
   public app: express.Application;
@@ -60,13 +61,16 @@ class App {
 
   private async connectToDb() {
     await dbConnection();
+    await setRedisAsync("foo", "bar");
+    const value = await getRedisAsync("foo");
+    console.log(value);
   }
 
   public listen() {
     this.connectToDb()
       .then(() => {
         console.log("connected to database...");
-        this.app.listen(appConfig.app.port, () => {
+        this.app.listen(appConfig.app.port, async () => {
           console.log(`Server started on port ${appConfig.app.port}`);
         });
       })
