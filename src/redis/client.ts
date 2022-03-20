@@ -1,6 +1,9 @@
+import { appConfig } from "./../config/app-config";
 import * as redis from "redis";
 
-export const redisClient = redis.createClient();
+export const redisClient = redis.createClient({
+  url: `redis://default:${appConfig.redis.password}@${appConfig.redis.url}`,
+});
 
 (async () => {
   redisClient.on("connect", () => console.log("Redis Client connected..."));

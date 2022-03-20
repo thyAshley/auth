@@ -11,7 +11,7 @@ import {
   protectMiddleware,
 } from "./middleware";
 import { authRoute } from "./auth/authRoutes";
-import { getRedisAsync, setRedisAsync } from "./redis/client";
+import "./redis/client";
 
 class App {
   public app: express.Application;
@@ -61,9 +61,6 @@ class App {
 
   private async connectToDb() {
     await dbConnection();
-    await setRedisAsync("foo", "bar");
-    const value = await getRedisAsync("foo");
-    console.log(value);
   }
 
   public listen() {

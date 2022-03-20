@@ -1,4 +1,8 @@
 export const appConfig = {
+  redis: {
+    url: process.env.REDIS_URL,
+    password: process.env.REDIS_PASSWORD,
+  },
   db: {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
