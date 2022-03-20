@@ -55,7 +55,11 @@ class App {
     this.app.use("/auth", authRoute);
     this.app.get("/health", healthMiddleware);
     this.app.get("/", protectMiddleware, (req, res, next) => {
-      return res.json("Welcome to the protected route");
+      try {
+        return res.json("Welcome to the protected route");
+      } catch (error) {
+        return res.json(error);
+      }
     });
   }
 

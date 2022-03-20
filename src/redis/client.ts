@@ -1,5 +1,5 @@
-import { appConfig } from "./../config/app-config";
 import * as redis from "redis";
+import { appConfig } from "./../config/app-config";
 
 export const redisClient = redis.createClient({
   url: `redis://default:${appConfig.redis.password}@${appConfig.redis.url}`,
@@ -23,6 +23,15 @@ export const getRedisAsync = async (key: string) => {
   const value = await redisClient.get(key);
   return value;
 };
+
 export const setRedisAsync = async (key: string, value: string) => {
   await redisClient.set(key, value);
+};
+
+export const setExRedisAsync = async (
+  key: string,
+  value: string,
+  expiry: number
+) => {
+  await redisClient.set(key, value, { EX: expiry });
 };

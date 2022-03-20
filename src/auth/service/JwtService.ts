@@ -1,6 +1,7 @@
 import { appConfig } from "./../../config/app-config";
 import createError from "http-errors";
-import jwt, { JsonWebTokenError, JwtPayload } from "jsonwebtoken";
+import jwt, { JsonWebTokenError } from "jsonwebtoken";
+import { getRedisAsync, setExRedisAsync } from "../../redis/client";
 
 interface SignAccessTokenPayload {
   userId: string;
@@ -15,7 +16,17 @@ interface JWTTokenPayload {
   iss: string;
 }
 
+interface JWTPayload {
+  email: string;
+  iat: number;
+  exp: number;
+  aud: string;
+  iss: string;
+}
+
 class JwtService {
+  private refreshTokenExpiry = 5;
+  private accessTokenExpiry = 5;
   constructor() {}
 
   private signAccessToken = async ({
@@ -34,7 +45,7 @@ class JwtService {
     }
     try {
       return jwt.sign(payload, secret || appConfig.app.jwtSecret, {
-        expiresIn: duration || 5,
+        expiresIn: duration || this.accessTokenExpiry,
         issuer: "authserver",
         audience: userId,
       });
@@ -44,7 +55,7 @@ class JwtService {
     }
   };
 
-  private verifyRefreshToken = (token: string): JWTTokenPayload => {
+  private verifyRefreshToken = async (token: string): Promise<any> => {
     if (!appConfig.app.jwtRefreshSecret) {
       throw new createError.ServiceUnavailable(
         "Service is unavailable, please contact the administrator"
@@ -59,6 +70,15 @@ class JwtService {
       if (error instanceof JsonWebTokenError) {
         switch (error.name) {
           case "TokenExpiredError":
+            const decodedPayload = jwt.decode(token) as JWTPayload;
+            console.log("payload---", decodedPayload);
+            if (decodedPayload && decodedPayload.aud) {
+              const refreshedToken = await getRedisAsync(decodedPayload.aud);
+              console.log(refreshedToken === token);
+              if (token === refreshedToken) {
+                return "";
+              }
+            }
             throw new createError.Unauthorized("Token has expired");
           case "JsonWebTokenError":
             throw new createError.Unauthorized(
@@ -72,18 +92,18 @@ class JwtService {
     }
   };
 
-  public verifyAccessToken = (token: string) => {
+  public verifyAccessToken = async (token: string) => {
     if (!appConfig.app.jwtSecret) {
       throw new createError.ServiceUnavailable(
         "Service is unavailable, please contact the administrator"
       );
     }
     try {
-      jwt.verify(token, appConfig.app.jwtSecret, {
+      const JWT = jwt.verify(token, appConfig.app.jwtSecret, {
         issuer: "authserver",
       });
     } catch (error) {
-      console.log(error);
+      console.log("hmmm", error);
       if (error instanceof JsonWebTokenError) {
         switch (error.name) {
           case "TokenExpiredError":
@@ -108,9 +128,10 @@ class JwtService {
       const refreshToken = await this.signAccessToken({
         email,
         userId,
-        duration: 10000,
+        duration: this.refreshTokenExpiry,
         secret: appConfig.app.jwtRefreshSecret,
       });
+      await setExRedisAsync(userId, refreshToken, this.refreshTokenExpiry);
       return refreshToken;
     } catch (error) {
       console.log(error);
@@ -133,7 +154,8 @@ class JwtService {
 
   public reIssueToken = async (refreshToken: string) => {
     try {
-      const jwtPayload = jwtService.verifyRefreshToken(refreshToken);
+      const jwtPayload = await jwtService.verifyRefreshToken(refreshToken);
+      console.log("jwt", jwtPayload);
       return this.issueToken(jwtPayload.email, jwtPayload.aud);
     } catch (error) {
       console.log(error);

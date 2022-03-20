@@ -15,7 +15,7 @@ export const protectMiddleware = async (
   }
   const [_, token] = auth.split(" ");
   try {
-    jwtService.verifyAccessToken(token);
+    await jwtService.verifyAccessToken(token);
     next();
   } catch (error) {
     next(error);
