@@ -9,7 +9,6 @@ export const validationMiddleware =
       await schema.validateAsync(req.body);
       next();
     } catch (error) {
-      console.log(error);
-      next(new createError.BadRequest("Invalid params provided"));
+      next(new createError.BadRequest("Invalid Username/Password provided"));
     }
   };

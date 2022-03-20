@@ -40,7 +40,7 @@ class AuthController {
         userId: user.id,
         email: user.email,
       });
-      return res.json(token);
+      return res.json({ token });
     } catch (error) {
       next(error);
     }

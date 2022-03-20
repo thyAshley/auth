@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { Request } from "express";
 import createError from "http-errors";
 import morgan from "morgan";
 import "reflect-metadata";
@@ -26,7 +26,14 @@ class App {
 
   private initializeLogger() {
     console.log("initialising logger");
-    this.app.use(morgan("dev"));
+    morgan.token("body", (req: Request) => {
+      if (req.body.password) {
+        req.body.password = "********";
+      }
+      return JSON.stringify(req.body);
+    });
+
+    this.app.use(morgan(":method :url :body"));
   }
 
   private initializeErrorHandler() {

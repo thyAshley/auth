@@ -8,6 +8,7 @@ export const appConfig = {
   },
   app: {
     port: process.env.PORT || 3000,
-    jwtSecret: process.env.JWT_SECRET,
+    jwtSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
+    jwtRefreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
   },
 };

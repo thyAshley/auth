@@ -31,6 +31,8 @@ class JwtService {
       throw new createError.InternalServerError(JSON.stringify(error));
     }
   };
+
+  public refreshAccessToken = async () => {};
 }
 
 export const jwtService = new JwtService();
