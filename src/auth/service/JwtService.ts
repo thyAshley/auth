@@ -14,7 +14,6 @@ class JwtService {
     email,
     userId,
   }: SignAccessTokenPayload) => {
-    console.log("here");
     const payload = {
       email,
     };

@@ -42,7 +42,8 @@ class AuthController {
       });
       return res.json({ token });
     } catch (error) {
-      next(error);
+      console.log(error);
+      next(new createError.InternalServerError());
     }
   }
 }

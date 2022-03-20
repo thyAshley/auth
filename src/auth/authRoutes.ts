@@ -1,3 +1,4 @@
+import createError from "http-errors";
 import { authController } from "./authController";
 import { NextFunction, Request, Response, Router } from "express";
 import { validationMiddleware } from "../middleware";
@@ -13,7 +14,10 @@ authRoute.post(
 
 authRoute.post(
   "/login",
-  validationMiddleware(LoginSchema),
+  validationMiddleware(
+    LoginSchema,
+    new createError.BadRequest("Invalid Username/Password")
+  ),
   authController.login
 );
 

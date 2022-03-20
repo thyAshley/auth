@@ -3,12 +3,15 @@ import { NextFunction, Request, Response } from "express";
 import { Schema } from "joi";
 
 export const validationMiddleware =
-  (schema: Schema) =>
+  (schema: Schema, error?: createError.HttpError) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await schema.validateAsync(req.body);
       next();
-    } catch (error) {
-      next(new createError.BadRequest("Invalid Username/Password provided"));
+    } catch (err) {
+      if (err) {
+        return next(error);
+      }
+      return next(new createError.InternalServerError("Something went wrong"));
     }
   };
