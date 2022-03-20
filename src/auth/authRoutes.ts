@@ -21,13 +21,9 @@ authRoute.post(
   authController.login
 );
 
-authRoute.post(
-  "/refresh-token",
-
-  async (req: Request, res: Response, next: NextFunction) => {
-    res.json({ message: "refresh" });
-  }
-);
+authRoute.post("/refresh-token", authController.refreshToken, () => {
+  console.log("wo");
+});
 
 authRoute.post(
   "/logout",

@@ -5,7 +5,11 @@ import morgan from "morgan";
 import "reflect-metadata";
 import { appConfig } from "./config/app-config";
 import { dbConnection } from "./db/dbConnection";
-import { errorHandlingMiddleware, healthMiddleware } from "./middleware";
+import {
+  errorHandlingMiddleware,
+  healthMiddleware,
+  protectMiddleware,
+} from "./middleware";
 import { authRoute } from "./auth/authRoutes";
 
 class App {
@@ -49,6 +53,9 @@ class App {
     console.log("initialising routes");
     this.app.use("/auth", authRoute);
     this.app.get("/health", healthMiddleware);
+    this.app.get("/", protectMiddleware, (req, res, next) => {
+      return res.json("Welcome to the protected route");
+    });
   }
 
   private async connectToDb() {

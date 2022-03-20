@@ -9,6 +9,10 @@ interface PostLoginRequestBody {
   password: string;
 }
 
+interface PostRefreshTokenBody {
+  refreshToken: string;
+}
+
 class AuthController {
   constructor() {}
 
@@ -40,7 +44,25 @@ class AuthController {
         userId: user.id,
         email: user.email,
       });
-      return res.json({ token });
+      const refreshToken = await jwtService.signRefreshToken({
+        userId: user.id,
+        email: user.email,
+      });
+      return res.json({ token, refreshToken });
+    } catch (error) {
+      console.log(error);
+      next(new createError.InternalServerError());
+    }
+  }
+
+  public async refreshToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { refreshToken } = req.body as PostRefreshTokenBody;
+      if (!refreshToken) {
+        next(new createError.BadRequest());
+      }
+      jwtService.verifyRefreshToken(refreshToken);
+      next();
     } catch (error) {
       console.log(error);
       next(new createError.InternalServerError());
