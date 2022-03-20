@@ -43,16 +43,12 @@ class AuthController {
 
       const userId = user.id.toString();
 
-      const token = await jwtService.signAccessToken({
-        userId,
-        email: user.email,
-      });
-      const refreshToken = await jwtService.signRefreshToken({
-        userId,
-        email: user.email,
-      });
+      const { newRefreshToken, newToken } = await jwtService.issueToken(
+        user.email,
+        userId
+      );
 
-      return res.json({ token, refreshToken });
+      return res.json({ token: newToken, refreshToken: newRefreshToken });
     } catch (error) {
       console.log(error);
       next(new createError.InternalServerError());

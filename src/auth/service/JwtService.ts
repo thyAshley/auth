@@ -18,7 +18,7 @@ interface JWTTokenPayload {
 class JwtService {
   constructor() {}
 
-  public signAccessToken = async ({
+  private signAccessToken = async ({
     email,
     userId,
     secret,
@@ -44,7 +44,7 @@ class JwtService {
     }
   };
 
-  public verifyRefreshToken = (token: string): JWTTokenPayload => {
+  private verifyRefreshToken = (token: string): JWTTokenPayload => {
     if (!appConfig.app.jwtRefreshSecret) {
       throw new createError.ServiceUnavailable(
         "Service is unavailable, please contact the administrator"
@@ -118,19 +118,23 @@ class JwtService {
     }
   };
 
+  public issueToken = async (email: string, userId: string) => {
+    const newToken = await jwtService.signAccessToken({
+      email,
+      userId,
+    });
+
+    const newRefreshToken = await jwtService.signRefreshToken({
+      email,
+      userId,
+    });
+    return { newToken, newRefreshToken };
+  };
+
   public reIssueToken = async (refreshToken: string) => {
     try {
       const jwtPayload = jwtService.verifyRefreshToken(refreshToken);
-      const newToken = await jwtService.signAccessToken({
-        email: jwtPayload.email,
-        userId: jwtPayload.aud,
-      });
-
-      const newRefreshToken = await jwtService.signRefreshToken({
-        email: jwtPayload.email,
-        userId: jwtPayload.aud,
-      });
-      return { newToken, newRefreshToken };
+      return this.issueToken(jwtPayload.email, jwtPayload.aud);
     } catch (error) {
       console.log(error);
       throw new createError.InternalServerError();
