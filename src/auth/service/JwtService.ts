@@ -1,12 +1,18 @@
 import { appConfig } from "./../../config/app-config";
 import createError from "http-errors";
-import jwt, { JsonWebTokenError } from "jsonwebtoken";
+import jwt, { JsonWebTokenError, JwtPayload } from "jsonwebtoken";
 
 interface SignAccessTokenPayload {
-  userId: number;
+  userId: string;
   email: string;
   secret?: string;
   duration?: number;
+}
+
+interface JWTTokenPayload {
+  email: string;
+  aud: string;
+  iss: string;
 }
 
 class JwtService {
@@ -30,7 +36,7 @@ class JwtService {
       return jwt.sign(payload, secret || appConfig.app.jwtSecret, {
         expiresIn: duration || 5,
         issuer: "authserver",
-        audience: userId.toString(),
+        audience: userId,
       });
     } catch (error) {
       console.log(error);
@@ -38,16 +44,16 @@ class JwtService {
     }
   };
 
-  public verifyRefreshToken = (token: string) => {
+  public verifyRefreshToken = (token: string): JWTTokenPayload => {
     if (!appConfig.app.jwtRefreshSecret) {
       throw new createError.ServiceUnavailable(
         "Service is unavailable, please contact the administrator"
       );
     }
     try {
-      jwt.verify(token, appConfig.app.jwtRefreshSecret, {
+      return jwt.verify(token, appConfig.app.jwtRefreshSecret, {
         issuer: "authserver",
-      });
+      }) as JWTTokenPayload;
     } catch (error) {
       console.log(error);
       if (error instanceof JsonWebTokenError) {
@@ -106,6 +112,25 @@ class JwtService {
         secret: appConfig.app.jwtRefreshSecret,
       });
       return refreshToken;
+    } catch (error) {
+      console.log(error);
+      throw new createError.InternalServerError();
+    }
+  };
+
+  public reIssueToken = async (refreshToken: string) => {
+    try {
+      const jwtPayload = jwtService.verifyRefreshToken(refreshToken);
+      const newToken = await jwtService.signAccessToken({
+        email: jwtPayload.email,
+        userId: jwtPayload.aud,
+      });
+
+      const newRefreshToken = await jwtService.signRefreshToken({
+        email: jwtPayload.email,
+        userId: jwtPayload.aud,
+      });
+      return { newToken, newRefreshToken };
     } catch (error) {
       console.log(error);
       throw new createError.InternalServerError();

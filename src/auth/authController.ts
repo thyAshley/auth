@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { json, NextFunction, Request, Response } from "express";
 import createError from "http-errors";
 import { jwtService } from "./service/JwtService";
 import { userService } from "./service/UserService";
@@ -40,14 +40,18 @@ class AuthController {
         payload.email,
         payload.password
       );
+
+      const userId = user.id.toString();
+
       const token = await jwtService.signAccessToken({
-        userId: user.id,
+        userId,
         email: user.email,
       });
       const refreshToken = await jwtService.signRefreshToken({
-        userId: user.id,
+        userId,
         email: user.email,
       });
+
       return res.json({ token, refreshToken });
     } catch (error) {
       console.log(error);
@@ -59,13 +63,14 @@ class AuthController {
     try {
       const { refreshToken } = req.body as PostRefreshTokenBody;
       if (!refreshToken) {
-        next(new createError.BadRequest());
+        return next(new createError.BadRequest());
       }
-      jwtService.verifyRefreshToken(refreshToken);
-      next();
+      const { newRefreshToken, newToken } = await jwtService.reIssueToken(
+        refreshToken
+      );
+      return res.json({ token: newToken, refreshToken: newRefreshToken });
     } catch (error) {
-      console.log(error);
-      next(new createError.InternalServerError());
+      next(error);
     }
   }
 }
